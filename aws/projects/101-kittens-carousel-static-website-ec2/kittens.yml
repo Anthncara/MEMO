@@ -2,26 +2,15 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: This template creates an EC2 instance to run a static website application deployed with Apache Web Server
    
 Resources:
-  WebServerSecurityGroup:
-    Type: "AWS::EC2::SecurityGroup"
-    Properties:
-      GroupDescription: Base Security Group
-      GroupName: ApacheSG
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0        
+
   KittensCarouselStaticWebsiteCFInstance:
     Type: "AWS::EC2::Instance"
     Properties:
       ImageId: ami-0cebb45b34604efb8
       InstanceType: t2.micro
       KeyName: bu_bizim_yeni
+      SecurityGroups:
+        - Flask_Working
       Tags:
         - Key: Name
           Value: ApacheWebEC2
