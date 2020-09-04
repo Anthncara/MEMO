@@ -21,7 +21,7 @@ Resources:
     Properties:
       ImageId: ami-0cebb45b34604efb8
       InstanceType: t2.micro
-      KeyName: baris
+      KeyName: bu_bizim_yeni
       Tags:
         - Key: Name
           Value: ApacheWebEC2
@@ -33,9 +33,9 @@ Resources:
             yum install -y httpd
             DATE_TIME=`date`
             cd /var/www/html
-            wget https://raw.githubusercontent.com/yurttav/aws_workshops/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/index.html
-            wget https://raw.githubusercontent.com/yurttav/aws_workshops/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat0.jpg
-            wget https://raw.githubusercontent.com/yurttav/aws_workshops/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat1.jpg
-            wget https://raw.githubusercontent.com/yurttav/aws_workshops/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat2.jpg
+            wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/index.html
+            wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat0.jpg
+            wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat1.jpg
+            wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/101-kittens-carousel-static-website-ec2/static-web/cat2.jpg
             systemctl start httpd
             systemctl enable httpd
