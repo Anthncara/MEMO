@@ -56,8 +56,9 @@ Resources:
               cd /usr/share/nginx/html
               chmod o+w /usr/share/nginx/html
               rm index.html
-              wget https://raw.githubusercontent.com/awsdevopsteam/route-53/master/index.html
-              wget https://raw.githubusercontent.com/awsdevopsteam/route-53/master/ken.jpg
+              wget https://github.com/Anthncara/MEMO/blob/master/aws/projects/001-roman-numerals-converter/templates/result.html
+              wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/001-roman-numerals-converter/templates/index.html
+              wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/001-roman-numerals-converter/appV2.py
               service nginx start
               sleep 60
               mkfs -t ext4 /dev/xvdf
