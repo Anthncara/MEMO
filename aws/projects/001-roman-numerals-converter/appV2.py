@@ -10,13 +10,13 @@ def home():
             if (num >=1) and (num < 4000):
                 number_decimal = num
                 number_roman = convert(num)
-                return render_template("result.html", developer_name = "E2501-İbrahim", number_decimal = number_decimal, number_roman = number_roman)
+                return render_template("result.html", developer_name = "E2015-Umut", number_decimal = number_decimal, number_roman = number_roman)
             else:
-                return render_template("index.html", developer_name = "E2501-İbrahim", not_valid= True)
+                return render_template("index.html", developer_name = "E2015-Umut", not_valid= True)
         else:
-            return render_template("index.html", developer_name = "E2501-İbrahim", not_valid= True)
+            return render_template("index.html", developer_name = "E2015-Umut", not_valid= True)
     else:
-        return render_template("index.html", developer_name = "E2501-İbrahim")
+        return render_template("index.html", developer_name = "E2015-Umut")
 
 
 def convert(num):
