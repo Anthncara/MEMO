@@ -1,0 +1,21 @@
+SQLALCHEMY:
+https://flask-sqlalchemy.palletsprojects.com/en/2.x/
+
+Ayrıntı:
+https://flask-sqlalchemy.palletsprojects.com/en/2.x/quickstart/#a-minimal-application
+
+Configuration :
+
+https://flask-sqlalchemy.palletsprojects.com/en/2.x/config/
+
+Acilan EC2 instance üzerine
+• sudo yum install python3
+• sudo pip3 install flask
+• sudo pip3 install flask_sqlalchemy
+• sudo pip3 install flask_mysql
+komutlarini vermeyi unutmayalim. Derste bunlar lazim olacak. Serdar hocamiz belirtmisti.
+
+sudo apt update && upgradesudo apt install python3 python3-pip ipython3
+• sudo pip3 install flask
+• sudo pip3 install flask_sqlalchemy
+• sudo pip3 install flask_mysql
