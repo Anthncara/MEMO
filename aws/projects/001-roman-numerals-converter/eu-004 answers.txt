@@ -1,0 +1,117 @@
+If you want to make radical changes to your team’s project and don’t want to impact the rest of the
+team, you should implement your changes in …
+a. … a tag.
+b. … the trunk.
+c. … the root.
+d. … a branch.
+e. None of the above
+
+Answer:d
+
+2.What are characteristics of Amazon S3? (Choose two.)
+A . Objects are directly accessible via a URL
+B . S3 should be used to host a relational database
+C . S3 allows you to store objects or virtually unlimited size
+D . S3 allows you to store virtually unlimited amounts of data
+
+
+Answer: A,D
+
+Explanation:
+
+The total volume of data and number of objects you can store are unlimited. Individual Amazon S3 objects can range in size from a minimum of 0 bytes to a maximum of 5 terabytes. The largest object that can be uploaded in a single PUT is 5 gigabytes. For objects larger than 100 megabytes, customers should consider using the Multipart Upload capability. https://aws.amazon.com/s3/faqs/
+
+3. What is a shell script?
+A. group of commands
+B. a file containing special symbols
+C. a file containing a series of commands
+D. group of functions
+
+Answer:C
+
+4. To run the script, we should make it executable first by using _____.
+A. chmod +x
+B. chmod +r
+C. chmod +w
+D. chmod +rwx
+
+Answer:A
+
+4. To run the script, we should make it executable first by using _____.
+A. chmod +x
+B. chmod +r
+C. chmod +w
+D. chmod +rwx
+
+Answer: a
+Explanation: Before we run the script, it is essential to make the script executable first. After that invoke the script name to run the script. For making the script executable, we have to use chmod +x script_name.
+
+5. Shell scripts need to be saved with an extension .sh
+A. True
+B. False
+
+Answer: b
+Explanation: It’s not mandatory to save script files with .sh extension but we do so for our own convention as it makes it easy to match them with wildcards.
+
+
+*****************************************************************************
+*****************************************************************************
+
+1. Which of the following default settings are incorrect for a newly created S3 bucket? (choose 2
+options)
+A. Encryption is not enabled.
+B. Transfer Acceleration is enabled.
+C. No bucket policy exists.
+D. Versioning is enabled.
+
+Correct Answer is b Transfer Acceleration is enabled
+
+
+2. In Amazon S3, what is the difference between lifecycle policies and intelligent tiering?
+A. Lifecycle policies are not dependent on access patterns as is the case with intelligent tiering, instead they
+are pre-configured with a transition rule.
+B. Intelligent tiering is an object storage class which is not dependent on access patterns, it uses a preconfigured transition rule.
+C. When transitioning objects into different storage classes, intelligent tiering is automatic whilst lifecycle
+policies have to be manually triggered.
+D. Lifecycle policies cannot be configured to permanently delete objects from an S3 bucket whilst intelligent
+tiering can do so if versioning is turned on.
+
+Answer:
+A. Lifecycle policies are not dependant on access patterns as is the case with intelligent tiering, instead they are pre-configured with a transition rule.
+
+3. A company wants to utilize aws storage. For them low storage cost is paramount, the data is rarely
+retrieved, and data retrieval times of several hours are acceptable for them. What is the best storage
+option to use?
+A. AWS Glacier
+B. AWS S3 Reduced Redundancy Storage
+C. EBS backed storage connected to EC2
+D. AWS CloudFront
+
+Answer:A
+
+
+4. Which of the following can be attached to EC2 Instances to store data?
+A. Amazon Glacier
+B. Amazon EBS Volumes
+C. Amazon EBS Snapshots
+D. Amazon SQS
+
+Answer:B. Amazon EBS Volumes
+
+5. Development teams in your organization use S3 buckets to store log files for various applications
+hosted in AWS development environments. The developers intend to keep the logs for a month for
+troubleshooting purposes, and subsequently purge the logs.
+Which feature should be used to enable this requirement?
+A. Adding a bucket policy on the S3 bucket.
+B. Configuring lifecycle configuration rules on the S3 bucket.
+C. Creating an IAM policy for the S3 bucket.
+D. Enabling CORS on the S3 bucket.
+
+Answer:(2018/February) B – Lifecycle configuration allows lifecycle management of objects in a bucket. The configuration is a set
+of one or more rules, where each rule defines an action for Amazon S3 to apply to a group of objects.
+Bucket policies and IAM define access to objects in an S3 bucket. CORS enables clients in one domain
+to interact with resources in a different domain. 
+
+
+(((https://quizlet.com/455805618/cloud-practitioner-flash-cards/))))
+advice URL
