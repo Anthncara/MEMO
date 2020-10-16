@@ -67,20 +67,22 @@ Resources:
           Fn::Base64:
             !Sub |
               #! /bin/bash
-              sudo yum update -y
-              sudo yum install python3 -y
-              sudo pip3 install flask  
-              sudo pip3 install flask-mysql 
-              sudo pip3 install Flask-Ext           
+              yum update -y
+              yum install python3 -y
+              pip3 install flask
+              pip3 install flask_sqlalchemy  
+              pip3 install flask-mysql 
+              pip3 install Flask-Ext
               cd /home/ec2-user
+              wget https://raw.githubusercontent.com/E2011Yahya/cw_myworkshop/master/aws/projects/004-phonebook-web-application/phonebook-app.py
               mkdir templates
               cd templates
               wget https://raw.githubusercontent.com/E2011Yahya/cw_myworkshop/master/aws/projects/004-phonebook-web-application/templates/index.html
               wget https://raw.githubusercontent.com/E2011Yahya/cw_myworkshop/master/aws/projects/004-phonebook-web-application/templates/add-update.html 
               wget https://raw.githubusercontent.com/E2011Yahya/cw_myworkshop/master/aws/projects/004-phonebook-web-application/templates/delete.html
               cd ..
-              wget https://raw.githubusercontent.com/E2011Yahya/cw_myworkshop/master/aws/projects/004-phonebook-web-application/phonebook-app.py
-              sudo python3 phonebook-app.py
+              echo "${RDSinstance.Endpoint.Address}" >> dbserver.endpoint
+              python3 phonebook-app.py
 
   ALBTargetGroup:
     Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -102,12 +104,12 @@ Resources:
       SecurityGroups: 
         - !GetAtt ALBsecurityGroup.GroupId 
       Subnets: 
-        - subnet-b5258a94
-        - subnet-4f5aae7e
-        - subnet-7248d27c
-        - subnet-acd575ca
-        - subnet-9876dbc7
-        - subnet-e182f2ac
+        - subnet-2f2e8c70
+        - subnet-e1e612d0
+        - subnet-2f39a221
+        - subnet-3cfa8b71
+        - subnet-22c26d03
+        - subnet-bda607db
       Type: application 
      
         
