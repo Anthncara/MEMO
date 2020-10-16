@@ -48,9 +48,11 @@ Resources:
               yum update -y
               yum install python3 -y
               pip3 install flask
-              curl -s --create-dirs -o "/home/ec2-user/templates/index.html" -L "https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/002-milliseconds-converter/templates/index.html"
-              curl -s --create-dirs -o "/home/ec2-user/templates/result.html" -L "https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/002-milliseconds-converter/templates/result.html"
-              curl -s --create-dirs -o "/home/ec2-user/app.py" -L "https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/002-milliseconds-converter/app.py"
+              TOKEN="8a66c5ddba7f05018b51989543666cea271a957b"
+              FOLDER="https://$TOKEN@raw.https://github.com/Anthncara/MEMO/blob/master/aws/projects/002-milliseconds-converter/"
+              curl -s --create-dirs -o "/home/ec2-user/templates/index.html" -L "$FOLDER"templates/index.html
+              curl -s --create-dirs -o "/home/ec2-user/templates/result.html" -L "$FOLDER"templates/result.html
+              curl -s --create-dirs -o "/home/ec2-user/app.py" -L "$FOLDER"app.py
               python3 /home/ec2-user/app.py
 
   WebServerTargetGroup:
