@@ -9,6 +9,10 @@ Description: |
 
   
 Resources:
+  myS3Bucket:
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: Retain
+
   ALBsecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
@@ -70,16 +74,15 @@ Resources:
               yum update -y
               yum install python3 -y
               pip3 install flask
-              pip3 install flask_sqlalchemy  
               pip3 install flask-mysql 
               pip3 install Flask-Ext
               cd /home/ec2-user
-              wget https://raw.githubusercontent.com/E2011Yahya/cw_myworkshop/master/aws/projects/004-phonebook-web-application/phonebook-app.py
+              wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/004-phonebook-web-application/phonebook-app.py
               mkdir templates
               cd templates
-              wget https://raw.githubusercontent.com/E2011Yahya/cw_myworkshop/master/aws/projects/004-phonebook-web-application/templates/index.html
-              wget https://raw.githubusercontent.com/E2011Yahya/cw_myworkshop/master/aws/projects/004-phonebook-web-application/templates/add-update.html 
-              wget https://raw.githubusercontent.com/E2011Yahya/cw_myworkshop/master/aws/projects/004-phonebook-web-application/templates/delete.html
+              wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/004-phonebook-web-application/templates/index.html
+              wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/004-phonebook-web-application/templates/add-update.html 
+              wget https://raw.githubusercontent.com/Anthncara/MEMO/master/aws/projects/004-phonebook-web-application/templates/delete.html
               cd ..
               echo "${RDSinstance.Endpoint.Address}" >> dbserver.endpoint
               python3 phonebook-app.py
