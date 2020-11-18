@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  This template creates an instance for bookstore application run on container. There are two containers
+  in the instance. They are database and server containers.
+Parameters:
+  KeyName:
+    Description: Select your key
+    Type: AWS::EC2::KeyPair::KeyName
+
+Resources:
+
+  bookstoreserver:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KeyName
+      ImageId: ami-0947d2ba12ee1ff75
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !GetAtt bookstoreserversg.GroupId
+      UserData:
+        Fn::Base64: |
+            #!/bin/bash 
+            yum update -y
+            amazon-linux-extras install docker -y
+            systemctl start docker
+            systemctl enable docker
+            usermod -a -G docker ec2-user
+            curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+            mkdir /home/ec2-user/bookstore && cd /home/ec2-user/bookstore
+            wget https://raw.githubusercontent.com/mustyfdn/fdn_aws_workshop/master/devops/projects/201-dockerization-bookstore-api-on-python-flask-mysql/Dockerfile
+            wget https://raw.githubusercontent.com/mustyfdn/fdn_aws_workshop/master/devops/projects/201-dockerization-bookstore-api-on-python-flask-mysql/docker-compose.yml
+            wget https://raw.githubusercontent.com/mustyfdn/fdn_aws_workshop/master/devops/projects/201-dockerization-bookstore-api-on-python-flask-mysql/bookstore-api.py
+            wget https://raw.githubusercontent.com/mustyfdn/fdn_aws_workshop/master/devops/projects/201-dockerization-bookstore-api-on-python-flask-mysql/requirements.txt
+            docker-compose up -d
+
+  bookstoreserversg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP and SSH    
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+Outputs: 
+  WebsiteURL:
+    Value: !Sub 
+      - http://${PublicAddress}
+      - PublicAddress: !GetAtt bookstoreserver.PublicDnsName
+    Description: Bookstore Web API URL
