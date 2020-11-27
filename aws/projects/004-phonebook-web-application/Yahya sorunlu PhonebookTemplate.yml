@@ -49,8 +49,79 @@ Resources:
         - EC2SecurityGroupName:
             Ref: WebserverSecurityGroup
       GroupDescription: DataBasaSecurityGroup #required
+
+  RDSinstance:
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      AllocatedStorage: 20
+      BackupRetentionPeriod: 7
+      DBInstanceClass: db.t2.micro #required
+      #DBInstanceIdentifier: PhonebookDatabaseRDS
+      DBName: PhonebookDatabase
+      DBSecurityGroups: 
+        - !Ref RDSSecurityGroup
+      DeleteAutomatedBackups: true
+      DeletionProtection: true
+      Engine: mysql
+      EngineVersion: 8.0.20
+      MasterUserPassword: P123456789
+      MasterUsername: admin
+      Port: '3306'
+      #PreferredBackupWindow: 01:00-02:00 
+      #PreferredMaintenanceWindow: Sun:05:00-Sun:06:00 
+      PubliclyAccessible: true
+
+  ALBTargetGroup:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      VpcId: !GetAtt WebserverSecurityGroup.VpcId
+
+  ALBListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions: #required
+        - TargetGroupArn: !Ref ALBTargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref ApplicationLoadBalancer  #required
+      Port: 80 #required
+      Protocol: HTTP #required  
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      SecurityGroups: 
+        - !GetAtt ALBsecurityGroup.GroupId 
+      Subnets: 
+        - subnet-2f2e8c70
+        - subnet-e1e612d0
+        - subnet-2f39a221
+        - subnet-3cfa8b71
+        - subnet-22c26d03
+        - subnet-bda607db
+      Type: application 
       
-          
+  ALBAutoScalingGroup:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      AvailabilityZones:
+        !GetAZs 
+      DesiredCapacity: '2'
+      HealthCheckGracePeriod: 90
+      HealthCheckType: ELB
+      LaunchTemplate: 
+        LaunchTemplateId: !Ref WebserverLaunchTemplate
+        Version: !GetAtt WebserverLaunchTemplate.DefaultVersionNumber      
+      MaxSize: '3' #required
+      MinSize: '1' #required
+      TargetGroupARNs:
+        - !Ref ALBTargetGroup
 
   WebserverLaunchTemplate:
     Type: "AWS::EC2::LaunchTemplate"
@@ -67,6 +138,7 @@ Resources:
             Tags: 
             - Key: Name
               Value: !Sub Web Server of ${AWS::StackName}
+
         UserData: 
           Fn::Base64:
             !Sub |
@@ -87,81 +159,8 @@ Resources:
               echo "${RDSinstance.Endpoint.Address}" >> dbserver.endpoint
               python3 phonebook-app.py
 
-  ALBTargetGroup:
-    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
-    Properties:
-      HealthCheckEnabled: true
-      HealthCheckIntervalSeconds: 30
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 3
-      Port: 80
-      Protocol: HTTP
-      TargetType: instance
-      VpcId: !GetAtt WebserverSecurityGroup.VpcId
 
-  
 
-  ApplicationLoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Properties: 
-      SecurityGroups: 
-        - !GetAtt ALBsecurityGroup.GroupId 
-      Subnets: 
-        - subnet-2f2e8c70
-        - subnet-e1e612d0
-        - subnet-2f39a221
-        - subnet-3cfa8b71
-        - subnet-22c26d03
-        - subnet-bda607db
-      Type: application 
-     
-        
-  ALBListener:
-    Type: "AWS::ElasticLoadBalancingV2::Listener"
-    Properties:
-      DefaultActions: #required
-        - TargetGroupArn: !Ref ALBTargetGroup
-          Type: forward
-      LoadBalancerArn: !Ref ApplicationLoadBalancer  #required
-      Port: 80 #required
-      Protocol: HTTP #required
-      
-  ALBAutoScalingGroup:
-    Type: "AWS::AutoScaling::AutoScalingGroup"
-    Properties:
-      AvailabilityZones:
-        !GetAZs 
-      DesiredCapacity: '2'
-      HealthCheckGracePeriod: 90
-      HealthCheckType: ELB
-      LaunchTemplate: 
-        LaunchTemplateId: !Ref WebserverLaunchTemplate
-        Version: !GetAtt WebserverLaunchTemplate.DefaultVersionNumber      
-      MaxSize: '3' #required
-      MinSize: '1' #required
-      TargetGroupARNs:
-        - !Ref ALBTargetGroup
-
-  RDSinstance:
-    Type: "AWS::RDS::DBInstance"
-    Properties:
-      AllocatedStorage: '20'
-      BackupRetentionPeriod: 7
-      DBInstanceClass: db.t2.micro #required
-      #DBInstanceIdentifier: PhonebookDatabaseRDS
-      DBName: PhonebookDatabase
-      DBSecurityGroups: 
-        - !Ref RDSSecurityGroup
-      DeleteAutomatedBackups: true
-      DeletionProtection: true
-      Engine: mysql
-      EngineVersion: 8.0.20
-      MasterUserPassword: P123456789
-      MasterUsername: admin
-      Port: '3306'
-      #PreferredBackupWindow: 01:00-02:00 
-      #PreferredMaintenanceWindow: Sun:05:00-Sun:06:00 
-      PubliclyAccessible: true
   
 Outputs:
   WebsiteURL:

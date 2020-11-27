@@ -1,8 +1,11 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: |
-  This template deploys an t2.micro EC2 Linux instance, running an application named miliseconds convertor that converts the given time in miliseconds 
-  into hours, miutes, and seconds. The application is coded in Python and deployed as a web application with Flask on AWS Application Load Balancer with Auto Scaling Group
-  of Amazon Linux 2 Elastic Compute Cloud(EC2) within default VPC. For deploying EC2, keypair is defined as a parameter.
+  The Phonebook Application aims to create a phonebook application 
+  in Python and deployed as a web application with Flask on AWS 
+  Application Load Balancer with Auto Scaling Group of Elastic 
+  Compute Cloud (EC2) Instances and Relational Database Service(RDS)
+  using AWS Cloudformation Service. For deploying EC2, keypair is defined as a parameter.
+  
 Parameters:
   Subnets:
     Type: List<AWS::EC2::Subnet::Id>
