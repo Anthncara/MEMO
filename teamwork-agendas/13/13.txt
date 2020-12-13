@@ -1,0 +1,56 @@
+1. Küme içinde hizmetin kısıtlanmasına yardımcı olmak için hangisi kullanılır?
+(Kubernetes)
+
+2. ___________ her düğümde çalışır ve kapsayıcıların bir bölmede çalışmasını sağlar. (Kubernetes)
+
+3. etcd için amaçlanan kullanım hangisidir? (Kubernetes
+
+4. Genel olarak, proxy hizmeti ne için kullanılır? (Kubernetes)
+
+5. _______, kaynak mevcudiyetine bağlı olarak bölmelere atama düğümlerini yönetir. (Kubernetes)
+
+Mülakat / Sertifika Soruları
+20 dk.
+1. Şirketiniz, Docker konteynerlerine dayalı bir uygulama barındırmayı planlıyor. Yüke göre otomatik olarak ölçeklenecek bir düzenleme hizmeti kurmaları gerekir. Kadar mümkünse şirket, altta yatan altyapıyı yönetme yükünü istemiyor. Hangisi aşağıdakiler bu senaryoya yardımcı olabilir mi?
+
+Amazon ECS hizmetiniz, isteğe bağlı olarak, istenen sayımı ayarlamak için Service Auto Scaling kullanacak şekilde yapılandırılabilir veya
+CloudWatch alarmlarına yanıt olarak azaldı. Service Auto Scaling, Application Auto Scaling hizmetinden yararlanarak
+bu işlevi sağlayın. Service Auto Scaling, Amazon ECS'yi destekleyen tüm bölgelerde mevcuttur.
+Amazon ECS, hizmetinizin ortalama CPU ve bellek kullanımıyla CloudWatch ölçümleri yayınlar. Kullanabilirsiniz
+bu hizmet kullanımı ölçümleri, hizmetinizi yoğun zamanlarda yüksek taleple başa çıkacak şekilde ölçeklendirmek ve ölçeklendirmek için
+düşük kullanım dönemlerinde maliyetleri düşürmek için hizmetinize
+
+
+
+2. AWS ECS örneğini başlatıyorsunuz. ECS kapsayıcı aracısı yapılandırmasını ayarlamak istiyorsunuz
+ECS örneğinin başlatılması sırasında. Ne yapmalısın?
+
+Bir Amazon ECS kapsayıcı bulut sunucusunu başlattığınızda, kullanıcı verilerini bulut sunucusuna geçirme seçeneğiniz vardır.
+Veriler, ortak otomatik yapılandırma görevlerini gerçekleştirmek ve hatta örnek olduğunda komut dosyalarını çalıştırmak için kullanılabilir.
+bot ayakkabı. Amazon ECS için, kullanıcı verilerine yönelik en yaygın kullanım örnekleri, yapılandırma bilgilerini
+Docker daemon ve Amazon ECS kapsayıcı aracısı
+
+3. Birbirinden çok farklı birden fazla uygulamaya sahip büyük bir şirkette çalışıyorsunuz.
+Bu uygulamalar, farklı programlama dilleri kullanılarak oluşturulmuştur. Bunları nasıl dağıtabilirsin
+uygulamaları mümkün olduğunca çabuk?
+
+Elastic Beanstalk, web uygulamalarının Docker konteynerlerinden dağıtımını destekler. Docker konteynerleri ile,
+kendi çalışma zamanı ortamınızı tanımlayabilirsiniz. Kendi platformunuzu, programlama dilinizi seçebilir ve
+diğer platformlar tarafından desteklenmeyen uygulama bağımlılıkları (paket yöneticileri veya araçlar gibi).
+Docker kapsayıcıları bağımsızdır ve web sitenizdeki tüm yapılandırma bilgilerini ve yazılımları içerir
+
+
+4. Kubectl nedir?
+
+Kubectl, uygulamaları Kubernetes üzerinde dağıtmak ve yönetmek için kullanılan bir Kubernetes komut satırı aracıdır.
+Kubectl, özellikle küme kaynaklarını incelemek ve oluşturmak, güncellemek ve silmek için kullanışlıdır.
+5. Kod Olarak Altyapı'nın (IaC) arkasındaki kavramı açıklayın
+
+Kod olarak altyapı (IaC), veri sunucularını, depolama sistemlerini, sistemi yönetmek ve çalıştırmak için bir süreçtir.
+yapılandırmalar ve ağ altyapısı.
+Geleneksel konfigürasyon yönetimi uygulamalarında, her dakikalık konfigürasyon değişikliği,
+sistem yöneticileri ve BT destek ekibi. Ancak IaC ile tüm yapılandırma ayrıntıları yönetilir ve
+Sistemin altyapı değişikliklerini ve anlaşmalarını otomatik olarak yönettiği standartlaştırılmış bir dosya sisteminde depolanır
+sistem konfigürasyonları ile.
+Bu nedenle, her şey takip edilerek yönetildiği ve otomatikleştirildiği için manuel çabanın çoğuna ihtiyaç duymuyoruz
+IaC yaklaşımı. Ansible gibi araçlar IaC yaklaşımını uygulamak için kullanılabilir
