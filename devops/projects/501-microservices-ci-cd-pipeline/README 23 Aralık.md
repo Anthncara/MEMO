@@ -76,7 +76,7 @@ yum install java-11-amazon-corretto -y
 
 ## MSP 2 - Prepare GitHub Repository for the Project
 
-* Clone the petclinic app from the repository [Spring Petclinic Microservices App](https://github.com/clarusway/petclinic-microservices.git) on your local machine
+* Connect to your Development Server via `ssh` and clone the petclinic app from the repository [Spring Petclinic Microservices App](https://github.com/clarusway/petclinic-microservices.git).
 
 ``` bash
 git clone https://github.com/clarusway/petclinic-microservices.git
@@ -89,9 +89,9 @@ cd petclinic-microservices
 rm -rf .git
 ```
 
-* Create a new repository on your Github with the name **petclinic-microservices**.
+* Create a new repository on your Github account with the name **petclinic-microservices**.
 
-*  Initiate the cloned repository on your local machine to make it a git repository and push the local repository to your remote repository.
+*  Initiate the cloned repository to make it a git repository and push the local repository to your remote repository.
 
 ```bash
 git init
@@ -100,13 +100,6 @@ git commit -m "first commit"
 git remote add origin https://github.com/[your-git-account]/petclinic-microservices.git
 git push origin main
 ```
-
-* Clone the petclinic-microservices repo from your GitHub repo on development server.
-
-``` bash
-git clone https://github.com/clarusway/petclinic-microservices.git
-```
-
 * Prepare base branches namely `master`,  `dev`,  `release` for DevOps cycle.
 
   + Create `dev` base branch.
@@ -960,8 +953,24 @@ git checkout feature/msp-13
 ``` bash
 mkdir jenkins
 ```
-
-* Create a Jenkins job with name of `petclinic-ci-job` with following script to unit tests and configure a webhook to trigger the job. Jenkins `CI Job` should be triggered to run on each commit of `feature**` and `bugfix**` branches and on each `PR` merge to `dev` branch.
+* Create a Jenkins job with the name of `petclinic-ci-job`: 
+  * Select `Freestyle project` and click `OK`
+  * Select github project and write the url to your repository's page into `Project url` (https://github.com/[your-github-account]/petclinic-microservices)
+  * Under the `Source Code Management` select `Git` 
+  * Write the url of your repository into the `Repository URL` (https://github.com/[your-github-account]/petclinic-microservices.git)
+  * Add `*/dev`, `*/feature**` and `*/bugfix**` branches to `Branches to build`
+  * Select `GitHub hook trigger for GITScm polling` under  `Build triggers`
+  * Select `Add timestamps to the Console Output` under `Build Environment`
+  * Click `Add build step` under `Build` and select `Execute Shell`
+  * Write below script into the `Command`
+    ```bash
+    echo 'Running Unit Tests on Petclinic Application'
+    docker run --rm -v $HOME/.m2:/root/.m2 -v `pwd`:/app -w /app maven:3.6-openjdk-11 mvn clean test
+    ```
+  * Click `Add post-build action` under `Post-build Actions` and select `Record jacoco coverage report`
+  * Click `Save`
+  
+* Jenkins `CI Job` should be triggered to run on each commit of `feature**` and `bugfix**` branches and on each `PR` merge to `dev` branch.
 
 * Prepare a script for Jenkins CI job (covering Unit Test only) and save it as `jenkins-petclinic-ci-job.sh` under `jenkins` folder.
 
@@ -969,9 +978,6 @@ mkdir jenkins
 echo 'Running Unit Tests on Petclinic Application'
 docker run --rm -v $HOME/.m2:/root/.m2 -v `pwd`:/app -w /app maven:3.6-openjdk-11 mvn clean test
 ```
-
-* Add `post-build action` to Jenkins Job to record `Jacoco` Coverage Report.
-
 * Create a webhook for Jenkins CI Job; 
 
   + Go to the project repository page and click on `Settings`.
@@ -979,10 +985,8 @@ docker run --rm -v $HOME/.m2:/root/.m2 -v `pwd`:/app -w /app maven:3.6-openjdk-1
   + Click on the `Webhooks` on the left hand menu, and then click on `Add webhook`.
 
   + Copy the Jenkins URL, paste it into `Payload URL` field, add `/github-webhook/` at the end of URL, and click on `Add webhook`.
-
   
-
-``` text
+  ``` text
   http://[jenkins-server-hostname]:8080/github-webhook/
   ```
 
@@ -1071,8 +1075,14 @@ git push --set-upstream origin feature/msp-16
 ```
 
 - Create a Jenkins Job and name it as `test-creating-qa-automation-infrastructure` to test `bash` scripts creating QA Automation Infrastructure for `dev` manually.
-
-- Check the environment tools setup and versions with following script.
+  * Select `Freestyle project` and click `OK`
+  * Select github project and write the url to your repository's page into `Project url` (https://github.com/[your-github-account]/petclinic-microservices)
+  * Under the `Source Code Management` select `Git` 
+  * Write the url of your repository into the `Repository URL` (https://github.com/[your-github-account]/petclinic-microservices.git)
+  * Add `*/feature/msp-16`branch to `Branches to build`
+  * Select `Add timestamps to the Console Output` under `Build Environment`
+  * Click `Add build step` under `Build` and select `Execute Shell`
+  * Write below script into the `Command` for checking the environment tools and versions with following script.
 
 ```bash
 echo $PATH
@@ -1083,8 +1093,9 @@ pip3 --version
 ansible --version
 aws --version
 ```
+  * Click `Save`
 
-- Test creating key pair for `ansible` using AWS CLI with following script.
+- After running the job above, replace the script with the one below in order to test creating key pair for `ansible`.
 
 ```bash
 PATH="$PATH:/usr/local/bin"
@@ -1094,7 +1105,7 @@ aws ec2 create-key-pair --region ${AWS_REGION} --key-name ${CFN_KEYPAIR} --query
 chmod 400 ${CFN_KEYPAIR}
 ```
 
-- Test creating Docker Swarm infrastructure with AWS Cloudformation using AWS CLI with following script.
+- After running the job above, replace the script with the one below in order to test creating Docker Swarm infrastructure with AWS Cloudformation.
 
 ```bash
 PATH="$PATH:/usr/local/bin"
@@ -1106,7 +1117,7 @@ AWS_REGION="us-east-1"
 aws cloudformation create-stack --region ${AWS_REGION} --stack-name ${APP_STACK_NAME} --capabilities CAPABILITY_IAM --template-body file://${CFN_TEMPLATE} --parameters ParameterKey=KeyPairName,ParameterValue=${CFN_KEYPAIR}
 ```
 
-- Test SSH connection with one of the docker instance.
+- After running the job above, replace the script with the one below in order to test SSH connection with one of the docker instance.
 
 ```bash
 CFN_KEYPAIR="call-ansible-test-dev.key"
@@ -1130,8 +1141,11 @@ git add .
 git commit -m 'added ansible static inventory host.ini for testing'
 git push
 ```
+23 Aralık :
+Jenkins Server u kalkındırıyoruz ve Github tan WebHook un punlic Ip sini güncelliyoruz. 
+Tekrar olarak 5 tag dynamic inventory de kullanıcaz  keypair gerektiğinden oluşturumuştuk. Workspace içerisinde infrastructure işçerisinde .yml  dosyayasını kontrol ediyyoruz. kendi adında keypair oluşmuş mu bak..Eğer Cloudformationu kaldırdıyıksak Yaml klasörünü çalıştıran scripti tekrar çalıştırmak lazım. Vuild number u akılda tut ki sonra kullancaksın. ıNATnceLARI KONTROL ET.
 
-- Test ansible by pinging static hosts.
+- Configure `test-creating-qa-automation-infrastructure` job and replace the existing script with the one below in order to test ansible by pinging static hosts.
 
 ```bash
 PATH="$PATH:/usr/local/bin"
@@ -1141,6 +1155,9 @@ export ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/${CFN_KEYPAIR}"
 export ANSIBLE_HOST_KEY_CHECKING=False
 ansible all -m ping
 ```
+
+
+---ANSİBLE KLASÖRÜ İÇERİSİNDE İNVENTORY klasörü vardı aşağıdaki yaml dosyasını oluştur.
 
 - Prepare dynamic inventory file with name of `dev_stack_dynamic_inventory_aws_ec2.yaml` for Ansible under `ansible/inventory` folder using Docker machines private IP addresses.
 
@@ -1169,6 +1186,8 @@ compose:
   ansible_user: "'ec2-user'"
 ```
 
+-Sonra bu dosya oluştur.
+
 - Prepare dynamic inventory file with name of `dev_stack_swarm_grand_master_aws_ec2.yaml` for Ansible under `ansible/inventory` folder using Docker machines private IP addresses.
 
 ```yaml
@@ -1185,6 +1204,8 @@ compose:
   ansible_user: "'ec2-user'"
 ```
 
+Sonra bu dosya
+
 - Prepare dynamic inventory file with name of `dev_stack_swarm_managers_aws_ec2.yaml` for Ansible under `ansible/inventory` folder using Docker machines private IP addresses.
 
 ```yaml
@@ -1200,6 +1221,7 @@ hostnames:
 compose:
   ansible_user: "'ec2-user'"
 ```
+Sonra workers dosyası
 
 - Prepare dynamic inventory file with name of `dev_stack_swarm_workers_aws_ec2.yaml` for Ansible under `ansible/inventory` folder using Docker machines private IP addresses.
 
@@ -1217,6 +1239,8 @@ compose:
   ansible_user: "'ec2-user'"
 ```
 
+-4 yaml file oluştuktan sonra git branch -a  msp 16 da olduğunu bil . sonra aşağıdaki komutları gir.
+
 - Commit the change, then push the cloudformation template to the remote repo.
 
 ```bash
@@ -1225,15 +1249,16 @@ git commit -m 'added ansible dynamic inventory files for dev environment'
 git push
 ```
 
-- Check the Ansible dynamic inventory for `dev` environment.
-
+- Configure `test-creating-qa-automation-infrastructure` job and replace the existing script with the one below in order to check the Ansible dynamic inventory for `dev` environment.
+Jenkins Workspace in içine gir Configure yap aşağıdaki scripti gir ismi değiştir. CFN 'ındaki isim , APP  Stack name  ve Builder daki numarayı değiştir. 3 değişiklik
+Build number -28 vs..şeklinde$ doları sil . Console output tan kontrol et.Sed komutu =replace.. Inventory içindeki ini yi kontrol et. app-stack-name-environemen
 ```bash
 APP_NAME="Petclinic"
-CFN_KEYPAIR="call-ansible-test-dev.key"
+CFN_KEYPAIR="memo-ansible-test-dev.key"
 PATH="$PATH:/usr/local/bin"
 export ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/${CFN_KEYPAIR}"
 export ANSIBLE_HOST_KEY_CHECKING=False
-export APP_STACK_NAME="Call-$APP_NAME-App-${BUILD_NUMBER}"
+export APP_STACK_NAME="Memo-$APP_NAME-App-${BUILD_NUMBER}"
 # Dev Stack
 sed -i "s/APP_STACK_NAME/$APP_STACK_NAME/" ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml
 cat ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml
@@ -1242,6 +1267,8 @@ ansible-inventory -v -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.
 sed -i "s/APP_STACK_NAME/$APP_STACK_NAME/" ./ansible/inventory/dev_stack_swarm_grand_master_aws_ec2.yaml
 cat ./ansible/inventory/dev_stack_swarm_grand_master_aws_ec2.yaml
 ansible-inventory -v -i ./ansible/inventory/dev_stack_swarm_grand_master_aws_ec2.yaml --graph
+
+
 # Dev Stack Managers
 sed -i "s/APP_STACK_NAME/$APP_STACK_NAME/" ./ansible/inventory/dev_stack_swarm_managers_aws_ec2.yaml
 cat ./ansible/inventory/dev_stack_swarm_managers_aws_ec2.yaml
@@ -1252,21 +1279,24 @@ cat ./ansible/inventory/dev_stack_swarm_workers_aws_ec2.yaml
 ansible-inventory -v -i ./ansible/inventory/dev_stack_swarm_workers_aws_ec2.yaml --graph
 ```
 
-- Test all instances within dev dynamic inventory by pinging static hosts.
+- After running the job above, replace the script with the one below in order to test all instances within dev dynamic inventory by pinging static hosts.
 
+
+Jenkinste configure de bu komutu gir. Değişkenleri değiştir.5 ping pong olacak Workspacee bak.
 ```bash
 # Test dev dynamic inventory by pinging
 APP_NAME="Petclinic"
-CFN_KEYPAIR="call-ansible-test-dev.key"
+CFN_KEYPAIR="memo-ansible-test-dev.key"
 PATH="$PATH:/usr/local/bin"
 export ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/${CFN_KEYPAIR}"
 export ANSIBLE_HOST_KEY_CHECKING=False
-export APP_STACK_NAME="Call-$APP_NAME-App-${BUILD_NUMBER}"
+export APP_STACK_NAME="Memo-$APP_NAME-App-${BUILD_NUMBER}"
 sed -i "s/APP_STACK_NAME/$APP_STACK_NAME/" ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml
 ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m ping
 ```
+Ansible-Pyabooks içerisinde aşağıdaki file ları yapıyoruz.
 
-- Create a ansible playbook to install and configure tools (`Docker`, `Docker-Compose`, `AWS CLI V2`) needed for all Docker Swarm nodes (instances) and save it as `pb_setup_for_all_docker_swarm_instances.yaml` under `ansible/playbooks` folder.
+- Create an ansible playbook to install and configure tools (`Docker`, `Docker-Compose`, `AWS CLI V2`) needed for all Docker Swarm nodes (instances) and save it as `pb_setup_for_all_docker_swarm_instances.yaml` under `ansible/playbooks` folder.
 
 ```yaml
 ---
@@ -1308,7 +1338,7 @@ ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m p
       creates: /usr/local/bin/aws
 ```
 
-- Create a ansible playbook to initialize the Docker Swarm and configure tools on `Grand Master` instance of Docker Swarm and save it as `pb_initialize_docker_swarm.yaml` under `ansible/playbooks` folder.
+- Create an ansible playbook to initialize the Docker Swarm and configure tools on `Grand Master` instance of Docker Swarm and save it as `pb_initialize_docker_swarm.yaml` under `ansible/playbooks` folder.
 
 ```yaml
 ---
@@ -1330,7 +1360,7 @@ ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m p
         dockersamples/visualizer
 ```
 
-- Create a ansible playbook to join the Docker manager nodes to the Swarm and save it as `pb_join_docker_swarm_managers.yaml` under `ansible/playbooks` folder.
+- Create an ansible playbook to join the Docker manager nodes to the Swarm and save it as `pb_join_docker_swarm_managers.yaml` under `ansible/playbooks` folder.
 
 ```yaml
 ---
@@ -1356,7 +1386,7 @@ ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m p
   - debug: msg='{{ result_of_joining.stdout }}'
 ```
 
-- Create a ansible playbook to join the Docker worker nodes to the Swarm and save it as `pb_join_docker_swarm_workers.yaml` under `ansible/playbooks` folder.
+- Create an ansible playbook to join the Docker worker nodes to the Swarm and save it as `pb_join_docker_swarm_workers.yaml` under `ansible/playbooks` folder.
 
 ```yaml
 ---
@@ -1381,6 +1411,7 @@ ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m p
 
   - debug: msg='{{ result_of_joining.stdout }}'
 ```
+Toplamda 4 adet yaml file girilmiş olacak. sonra aşağıdaki komutlar çalıştırılacak.
 
 - Commit the change, then push the ansible playbooks to the remote repo.
 
@@ -1390,37 +1421,60 @@ git commit -m 'added ansible playbooks for dev environment'
 git push
 ```
 
-- Test the playbooks to create a Docker Swarm on Cloudformation Stack.
+Configure diyerek aynı şekilde scripti değiştiriyoruz. değişkenleri yapmayı unutumayın 4 playbook u çalıştırıyoruz. komutu anlayalım  dev inventory i kullandık sonra playbookları çalıştırdık .  Yaml  playbook ta ne yapmışız 
+
+- Configure `test-creating-qa-automation-infrastructure` job and replace the existing script with the one below in order to test the playbooks to create a Docker Swarm on Cloudformation Stack. Ansible ile en baştaki Cloudformation dosyasının karşılaştırınca aynı şeyleri yaptığımızı görüyoruz. tooları yüklüyruz.
+https://docs.ansible.com/ansible/2.8/modules/service_module.html#service-module
+11:14
+https://docs.ansible.com/ansible/2.8/modules/shell_module.html#shell-module
+11:14
+https://docs.ansible.com/ansible/2.8/modules/get_url_module.html#get-url-module
+
+
+BAŞVKW  Sjş *ş şbcwbrıet swnwj -b sw ausı ywkiaiyylw yap demek .  ansible da host all derken aynı komutu hepsine yap.  yum orada modül .
+yum (modüller https://docs.ansible.com/ansible/2.8/modules/modules_by_category.html)
+command : service modülü servşce tarted, aws cli yın v1 i uninstall..
+docker swarm u aktif hale getiriyoruz.ansible  playbook denemek için labs.play-with-docker.com dan deneyebilirisin. docker info -docker swarm init - socker swarm init --addvertise-addr ip adersini gir on eth
+sonrasında :8088 den kontrol et.
+
+manager yapmak için docker swarm join-token manager sonra gidp o  instance içinden o kımutu giriyorduj ...
+socker swarm leave --force ile ayrılıyorduk. bunu ansible ile yapıyoruz.
+docker swatm join-token manager | grep -i 'docker'
+add_host modülü :aynı playbook içinde bir playden diğer playe variable aktarmak için  add_host kullanıyoruz. https://docs.ansible.com/ansible/2.8/modules/add_host_module.html#add-host-module: hostvars ile de variable ları shelden çekiyoruz.
+
+debug: nedir komut sonrası mesaj almak için.
+
 
 ```bash
 APP_NAME="Petclinic"
-CFN_KEYPAIR="call-ansible-test-dev.key"
+CFN_KEYPAIR="memo-ansible-test-dev.key"
 PATH="$PATH:/usr/local/bin"
 export ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/${CFN_KEYPAIR}"
 export ANSIBLE_HOST_KEY_CHECKING=False
-export APP_STACK_NAME="Call-$APP_NAME-App-${BUILD_NUMBER}"
+export APP_STACK_NAME="Memo-$APP_NAME-App-${BUILD_NUMBER}"
 sed -i "s/APP_STACK_NAME/$APP_STACK_NAME/" ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml
 # Swarm Setup for all nodes (instances)
 ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b ./ansible/playbooks/pb_setup_for_all_docker_swarm_instances.yaml
 # Swarm Setup for Grand Master node
 ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b ./ansible/playbooks/pb_initialize_docker_swarm.yaml
 # Swarm Setup for Other Managers nodes
-ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml ./ansible/playbooks/pb_join_docker_swarm_managers.yaml
+ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b ./ansible/playbooks/pb_join_docker_swarm_managers.yaml
 # Swarm Setup for Workers nodes
-ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml ./ansible/playbooks/pb_join_docker_swarm_workers.yaml
+ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b ./ansible/playbooks/pb_join_docker_swarm_workers.yaml
 ```
 
-- Test tearing down the Docker Swarm infrastructure using AWS CLI with following script.
+aşağıdaki komutu giriyoruz. değişiklikleri giriyoruz ve build number u
+- After running the job above, replace the script with the one below in order to test tearing down the Docker Swarm infrastructure using AWS CLI with following script.
 
 ```bash
 PATH="$PATH:/usr/local/bin"
 APP_NAME="Petclinic"
-AWS_STACK_NAME="Call-$APP_NAME-App-${BUILD_NUMBER}"
+AWS_STACK_NAME="Memo-$APP_NAME-App-${BUILD_NUMBER}"
 AWS_REGION="us-east-1"
 aws cloudformation delete-stack --region ${AWS_REGION} --stack-name ${AWS_STACK_NAME}
 ```
-
-- Test deleting existing key pair using AWS CLI with following script.
+Burada key file siliyoruz.
+- After running the job above, replace the script with the one below in order to test deleting existing key pair using AWS CLI with following script.
 
 ```bash
 PATH="$PATH:/usr/local/bin"
@@ -1430,18 +1484,20 @@ aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${CFN_KEYPAIR}
 rm -rf ${CFN_KEYPAIR}
 ```
 
+Bütün bu scriptleri tek bir environement olarak oluşturuyoz burada tek bir klasör olarak tutmak için.
+
 - Create a script to create QA Automation infrastructure and save it as `create-qa-automation-environment.sh` under `infrastructure` folder.
 
 ```bash
 # Environment variables
 PATH="$PATH:/usr/local/bin"
 APP_NAME="Petclinic"
-CFN_KEYPAIR="Call-$APP_NAME-dev-${BUILD_NUMBER}.key"
+CFN_KEYPAIR="Memo-$APP_NAME-dev-${BUILD_NUMBER}.key"
 CFN_TEMPLATE="./infrastructure/dev-docker-swarm-infrastructure-cfn-template.yml"
 AWS_REGION="us-east-1"
 export ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/${CFN_KEYPAIR}"
 export ANSIBLE_HOST_KEY_CHECKING=False
-export APP_STACK_NAME="Call-$APP_NAME-App-${BUILD_NUMBER}"
+export APP_STACK_NAME="Memo-$APP_NAME-App-${BUILD_NUMBER}"
 # Create key pair for Ansible
 aws ec2 create-key-pair --region ${AWS_REGION} --key-name ${CFN_KEYPAIR} --query "KeyMaterial" --output text > ${CFN_KEYPAIR}
 chmod 400 ${CFN_KEYPAIR}
@@ -1468,7 +1524,7 @@ aws cloudformation delete-stack --region ${AWS_REGION} --stack-name ${AWS_STACK_
 aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${CFN_KEYPAIR}
 rm -rf ${CFN_KEYPAIR}
 ```
-
+Son olarak bunu giriyorz.
 - Commit the change, then push the script to the remote repo.
 
 ```bash
@@ -1479,5 +1535,538 @@ git checkout dev
 git merge feature/msp-16
 git push origin dev
 ```
+23 Aralık sonu:
 
 ## MSP 17 - Prepare a QA Automation Pipeline for Nightly Builds
+
+- Create `feature/msp-17` branch from `dev`.
+
+```bash
+git checkout dev
+git branch feature/msp-17
+git checkout feature/msp-17
+```
+
+- Prepare a script to create ECR tags for the dev docker images and save it as `package-with-maven-container.sh` and save it under `jenkins` folder.
+
+```bash
+docker run --rm -v $HOME/.m2:/root/.m2 -v $WORKSPACE:/app -w /app maven:3.6-openjdk-11 mvn clean package
+```
+
+- Prepare a script to create ECR tags for the dev docker images and save it as `prepare-tags-ecr-for-dev-docker-images.sh` and save it under `jenkins` folder.
+
+```bash
+MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-admin-server/target/maven-archiver/pom.properties && echo $version)
+export IMAGE_TAG_ADMIN_SERVER="${ECR_REGISTRY}/${APP_REPO_NAME}:admin-server-v${MVN_VERSION}-b${BUILD_NUMBER}"
+MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-api-gateway/target/maven-archiver/pom.properties && echo $version)
+export IMAGE_TAG_API_GATEWAY="${ECR_REGISTRY}/${APP_REPO_NAME}:api-gateway-v${MVN_VERSION}-b${BUILD_NUMBER}"
+MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-config-server/target/maven-archiver/pom.properties && echo $version)
+export IMAGE_TAG_CONFIG_SERVER="${ECR_REGISTRY}/${APP_REPO_NAME}:config-server-v${MVN_VERSION}-b${BUILD_NUMBER}"
+MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-customers-service/target/maven-archiver/pom.properties && echo $version)
+export IMAGE_TAG_CUSTOMERS_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:customers-service-v${MVN_VERSION}-b${BUILD_NUMBER}"
+MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-discovery-server/target/maven-archiver/pom.properties && echo $version)
+export IMAGE_TAG_DISCOVERY_SERVER="${ECR_REGISTRY}/${APP_REPO_NAME}:discovery-server-v${MVN_VERSION}-b${BUILD_NUMBER}"
+MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-hystrix-dashboard/target/maven-archiver/pom.properties && echo $version)
+export IMAGE_TAG_HYSTRIX_DASHBOARD="${ECR_REGISTRY}/${APP_REPO_NAME}:hystrix-dashboard-v${MVN_VERSION}-b${BUILD_NUMBER}"
+MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-vets-service/target/maven-archiver/pom.properties && echo $version)
+export IMAGE_TAG_VETS_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:vets-service-v${MVN_VERSION}-b${BUILD_NUMBER}"
+MVN_VERSION=$(. ${WORKSPACE}/spring-petclinic-visits-service/target/maven-archiver/pom.properties && echo $version)
+export IMAGE_TAG_VISITS_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:visits-service-v${MVN_VERSION}-b${BUILD_NUMBER}"
+export IMAGE_TAG_GRAFANA_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:grafana-service"
+export IMAGE_TAG_PROMETHEUS_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:prometheus-service"
+```
+
+- Prepare a script to build the dev docker images tagged for ECR registry and save it as `build-dev-docker-images-for-ecr.sh` and save it under `jenkins` folder.
+
+```bash
+docker build --force-rm -t "${IMAGE_TAG_ADMIN_SERVER}" "${WORKSPACE}/spring-petclinic-admin-server"
+docker build --force-rm -t "${IMAGE_TAG_API_GATEWAY}" "${WORKSPACE}/spring-petclinic-api-gateway"
+docker build --force-rm -t "${IMAGE_TAG_CONFIG_SERVER}" "${WORKSPACE}/spring-petclinic-config-server"
+docker build --force-rm -t "${IMAGE_TAG_CUSTOMERS_SERVICE}" "${WORKSPACE}/spring-petclinic-customers-service"
+docker build --force-rm -t "${IMAGE_TAG_DISCOVERY_SERVER}" "${WORKSPACE}/spring-petclinic-discovery-server"
+docker build --force-rm -t "${IMAGE_TAG_HYSTRIX_DASHBOARD}" "${WORKSPACE}/spring-petclinic-hystrix-dashboard"
+docker build --force-rm -t "${IMAGE_TAG_VETS_SERVICE}" "${WORKSPACE}/spring-petclinic-vets-service"
+docker build --force-rm -t "${IMAGE_TAG_VISITS_SERVICE}" "${WORKSPACE}/spring-petclinic-visits-service"
+docker build --force-rm -t "${IMAGE_TAG_GRAFANA_SERVICE}" "${WORKSPACE}/docker/grafana"
+docker build --force-rm -t "${IMAGE_TAG_PROMETHEUS_SERVICE}" "${WORKSPACE}/docker/prometheus"
+```
+
+- Prepare a script to push the dev docker images to the ECR repo and save it as `push-dev-docker-images-to-ecr.sh` and save it under `jenkins` folder.
+
+```bash
+aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+docker push "${IMAGE_TAG_ADMIN_SERVER}"
+docker push "${IMAGE_TAG_API_GATEWAY}"
+docker push "${IMAGE_TAG_CONFIG_SERVER}"
+docker push "${IMAGE_TAG_CUSTOMERS_SERVICE}"
+docker push "${IMAGE_TAG_DISCOVERY_SERVER}"
+docker push "${IMAGE_TAG_HYSTRIX_DASHBOARD}"
+docker push "${IMAGE_TAG_VETS_SERVICE}"
+docker push "${IMAGE_TAG_VISITS_SERVICE}"
+docker push "${IMAGE_TAG_GRAFANA_SERVICE}"
+docker push "${IMAGE_TAG_PROMETHEUS_SERVICE}"
+```
+
+- Commit the change, then push the scripts to the remote repo.
+
+```bash
+git add .
+git commit -m 'added scripts for qa automation environment'
+git push --set-upstream origin feature/msp-17
+```
+
+- Prepare a docker compose file for swarm deployment and save it as `docker-compose-swarm-dev.yml`.
+
+```yaml
+version: '3.8'
+
+services:
+  config-server:
+    image: "${IMAGE_TAG_CONFIG_SERVER}"
+    networks:
+      - clarusnet
+    ports:
+     - 8888:8888
+
+  discovery-server:
+    image: "${IMAGE_TAG_DISCOVERY_SERVER}"
+    depends_on:
+      - config-server
+    entrypoint: ["./dockerize","-wait=tcp://config-server:8888","-timeout=60s","--","java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+    networks:
+      - clarusnet
+    ports:
+     - 8761:8761
+
+  customers-service:
+    image: "${IMAGE_TAG_CUSTOMERS_SERVICE}"
+    deploy:
+      replicas: 3
+      update_config:
+          parallelism: 2
+          delay: 5s
+          order: start-first
+    depends_on:
+     - config-server
+     - discovery-server
+    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+    networks:
+      - clarusnet
+    ports:
+    - 8081:8081
+
+  visits-service:
+    image: "${IMAGE_TAG_VISITS_SERVICE}"
+    deploy:
+      replicas: 3
+      update_config:
+          parallelism: 2
+          delay: 5s
+          order: start-first
+    depends_on:
+     - config-server
+     - discovery-server
+    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+    networks:
+      - clarusnet
+    ports:
+     - 8082:8082
+
+  vets-service:
+    image: "${IMAGE_TAG_VETS_SERVICE}"
+    deploy:
+      replicas: 3
+      update_config:
+          parallelism: 2
+          delay: 5s
+          order: start-first
+    depends_on:
+     - config-server
+     - discovery-server
+    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+    networks:
+      - clarusnet
+    ports:
+     - 8083:8083
+
+  api-gateway:
+    image: "${IMAGE_TAG_API_GATEWAY}"
+    deploy:
+      replicas: 3
+      update_config:
+          parallelism: 2
+          delay: 5s
+          order: start-first
+    depends_on:
+     - config-server
+     - discovery-server
+    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+    networks:
+      - clarusnet
+    ports:
+     - 8080:8080
+
+  tracing-server:
+    image: openzipkin/zipkin
+    environment:
+    - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
+    networks:
+      - clarusnet
+    ports:
+     - 9411:9411
+
+  admin-server:
+    image: "${IMAGE_TAG_ADMIN_SERVER}"
+    depends_on:
+     - config-server
+     - discovery-server
+    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+    networks:
+      - clarusnet
+    ports:
+     - 9090:9090
+
+  hystrix-dashboard:
+    image: "${IMAGE_TAG_HYSTRIX_DASHBOARD}"
+    depends_on:
+     - config-server
+     - discovery-server
+    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+    networks:
+      - clarusnet
+    ports:
+     - 7979:7979
+
+  ## Grafana / Prometheus
+
+  grafana-server:
+    image: "${IMAGE_TAG_GRAFANA_SERVICE}"
+    networks:
+      - clarusnet
+    ports:
+    - 3000:3000
+
+  prometheus-server:
+    image: "${IMAGE_TAG_PROMETHEUS_SERVICE}"
+    networks:
+      - clarusnet
+    ports:
+    - 9091:9090
+
+networks:
+  clarusnet:
+    driver: overlay
+```
+
+- Create Ansible playbook for deploying app on Docker swarm using docker compose file and save it as `pb_deploy_app_on_docker_swarm.yaml` under `ansible/playbooks` folder.
+
+```yaml
+---
+- hosts: role_grand_master
+  tasks:
+  - name: Copy docker compose file to grand master
+    copy:
+      src: "{{ workspace }}/docker-compose-swarm-dev-tagged.yml"
+      dest: /home/ec2-user/docker-compose-swarm-dev-tagged.yml
+
+  - name: get login credentials for ecr
+    shell: "export PATH=$PATH:/usr/local/bin/ && aws ecr get-login-password --region {{ aws_region }} | docker login --username AWS --password-stdin {{ ecr_registry }}"
+
+  - name: deploy the app stack on swarm
+    shell: "docker stack deploy --with-registry-auth -c /home/ec2-user/docker-compose-swarm-dev-tagged.yml {{ app_name }}"
+    register: output
+
+  - debug: msg="{{ output.stdout }}"
+```
+
+- Prepare a script to deploy the application on docker swarm and save it as `deploy_app_on_docker_swarm.sh` under `ansible/scripts` folder.
+
+```bash
+PATH="$PATH:/usr/local/bin"
+APP_NAME="petclinic"
+envsubst < docker-compose-swarm-dev.yml > docker-compose-swarm-dev-tagged.yml
+ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b --extra-vars "workspace=${WORKSPACE} app_name=${APP_NAME} aws_region=${AWS_REGION} ecr_registry=${ECR_REGISTRY}" ./ansible/playbooks/pb_deploy_app_on_docker_swarm.yaml
+```
+
+- Create Selenium dummy test with name of `dummy_selenium_test_headless.py` with following content to check the setup for the Selenium jobs and save it under `selenium-jobs` folder.
+
+```python
+from selenium import webdriver
+
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("headless")
+chrome_options.add_argument("no-sandbox")
+chrome_options.add_argument("disable-dev-shm-usage")
+driver = webdriver.Chrome(options=chrome_options)
+
+base_url = "https://www.google.com/"
+driver.get(base_url)
+source = driver.page_source
+
+if "I'm Feeling Lucky" in source:
+  print("Test passed")
+else:
+  print("Test failed")
+driver.close()
+```
+
+- Create Ansible playbook for running dummy selenium job and save it as `pb_run_dummy_selenium_job.yaml` under `ansible/playbooks` folder.
+
+```yaml
+---
+- hosts: all
+  tasks:
+  - name: run dummy selenium job
+    shell: "docker run --rm -v {{ workspace }}:{{ workspace }} -w {{ workspace }} callahanclarus/selenium-py-chrome:latest python {{ item }}"
+    with_fileglob: "{{ workspace }}/selenium-jobs/dummy*.py"
+    register: output
+  
+  - name: show results
+    debug: msg="{{ item.stdout }}"
+    with_items: "{{ output.results }}"
+```
+
+- Prepare a script to run the playbook for dummy selenium job on Jenkins Server (localhost) and save it as `run_dummy_selenium_job.sh` under `ansible/scripts` folder.
+
+```bash
+PATH="$PATH:/usr/local/bin"
+ansible-playbook --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE}" ./ansible/playbooks/pb_run_dummy_selenium_job.yaml
+```
+
+- Commit the change, then push the scripts for dummy selenium job to the remote repo.
+
+```bash
+git add .
+git commit -m 'added scripts for running dummy selenium job'
+git push --set-upstream origin feature/msp-17
+```
+
+- Create a Jenkins job with name of `test-running-dummy-selenium-job` to check the setup for selenium tests by running dummy selenium job on `feature/msp-17` branch.
+
+- Create Ansible playbook for running all selenium jobs under ``selenium-jobs` folder and save it as `pb_run_selenium_jobs.yaml` under `ansible/playbooks` folder.
+
+```yaml
+---
+- hosts: all
+  tasks:
+  - name: run all selenium jobs
+    shell: "docker run --rm --env MASTER_PUBLIC_IP={{ master_public_ip }} -v {{ workspace }}:{{ workspace }} -w {{ workspace }} callahanclarus/selenium-py-chrome:latest python {{ item }}"
+    register: output
+    with_fileglob: "{{ workspace }}/selenium-jobs/test*.py"
+  
+  - name: show results
+    debug: msg="{{ item.stdout }}"
+    with_items: "{{ output.results }}"
+```
+
+- Prepare a script to run the playbook for all selenium jobs on Jenkins Server (localhost) and save it as `run_selenium_jobs.sh` under `ansible/scripts` folder.
+
+```bash
+PATH="$PATH:/usr/local/bin"
+ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip=${GRAND_MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml
+```
+
+- Update the selenium jobs to get `Docker Grand Master Pubic IP` address as environment variable.
+
+- Create a Jenkins pipeline with name of `petclinic-nightly` with following script to run QA automation tests and configure a `cron job` to trigger the pipeline every night at midnight (`0 0 * * *`) on `dev` branch. Petclinic nightly build pipeline should be built on temporary QA automation environment.
+
+- Prepare a Jenkinsfile for `petclinic-nightly` builds and save it as `jenkinsfile-petclinic-nightly` under `jenkins` folder.
+
+```groovy
+pipeline {
+    agent { label "master" }
+    environment {
+        PATH=sh(script:"echo $PATH:/usr/local/bin", returnStdout:true).trim()
+        APP_NAME="petclinic"
+        APP_STACK_NAME="Call-${APP_NAME}-app-${BUILD_NUMBER}"
+        APP_REPO_NAME="clarusway-repo/${APP_NAME}-app-dev"
+        AWS_ACCOUNT_ID=sh(script:'export PATH="$PATH:/usr/local/bin" && aws sts get-caller-identity --query Account --output text', returnStdout:true).trim()
+        AWS_REGION="us-east-1"
+        ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        CFN_KEYPAIR="call-${APP_NAME}-dev-${BUILD_NUMBER}.key"
+        CFN_TEMPLATE="./infrastructure/dev-docker-swarm-infrastructure-cfn-template.yml"
+        ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/${CFN_KEYPAIR}"
+        ANSIBLE_HOST_KEY_CHECKING="False"
+    }
+    stages {
+        stage('Create ECR Repo') {
+            steps {
+                echo "Creating ECR Repo for ${APP_NAME} app"
+                sh """
+                aws ecr create-repository \
+                    --repository-name ${APP_REPO_NAME} \
+                    --image-scanning-configuration scanOnPush=false \
+                    --image-tag-mutability MUTABLE \
+                    --region ${AWS_REGION}
+                """
+            }
+        }
+        stage('Package Application') {
+            steps {
+                echo 'Packaging the app into jars with maven'
+                sh ". ./jenkins/package-with-maven-container.sh"
+            }
+        }
+        stage('Prepare Tags for Docker Images') {
+            steps {
+                echo 'Preparing Tags for Docker Images'
+                script {
+                    MVN_VERSION=sh(script:'. ${WORKSPACE}/spring-petclinic-admin-server/target/maven-archiver/pom.properties && echo $version', returnStdout:true).trim()
+                    env.IMAGE_TAG_ADMIN_SERVER="${ECR_REGISTRY}/${APP_REPO_NAME}:admin-server-v${MVN_VERSION}-b${BUILD_NUMBER}"
+                    MVN_VERSION=sh(script:'. ${WORKSPACE}/spring-petclinic-api-gateway/target/maven-archiver/pom.properties && echo $version', returnStdout:true).trim()
+                    env.IMAGE_TAG_API_GATEWAY="${ECR_REGISTRY}/${APP_REPO_NAME}:api-gateway-v${MVN_VERSION}-b${BUILD_NUMBER}"
+                    MVN_VERSION=sh(script:'. ${WORKSPACE}/spring-petclinic-config-server/target/maven-archiver/pom.properties && echo $version', returnStdout:true).trim()
+                    env.IMAGE_TAG_CONFIG_SERVER="${ECR_REGISTRY}/${APP_REPO_NAME}:config-server-v${MVN_VERSION}-b${BUILD_NUMBER}"
+                    MVN_VERSION=sh(script:'. ${WORKSPACE}/spring-petclinic-customers-service/target/maven-archiver/pom.properties && echo $version', returnStdout:true).trim()
+                    env.IMAGE_TAG_CUSTOMERS_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:customers-service-v${MVN_VERSION}-b${BUILD_NUMBER}"
+                    MVN_VERSION=sh(script:'. ${WORKSPACE}/spring-petclinic-discovery-server/target/maven-archiver/pom.properties && echo $version', returnStdout:true).trim()
+                    env.IMAGE_TAG_DISCOVERY_SERVER="${ECR_REGISTRY}/${APP_REPO_NAME}:discovery-server-v${MVN_VERSION}-b${BUILD_NUMBER}"
+                    MVN_VERSION=sh(script:'. ${WORKSPACE}/spring-petclinic-hystrix-dashboard/target/maven-archiver/pom.properties && echo $version', returnStdout:true).trim()
+                    env.IMAGE_TAG_HYSTRIX_DASHBOARD="${ECR_REGISTRY}/${APP_REPO_NAME}:hystrix-dashboard-v${MVN_VERSION}-b${BUILD_NUMBER}"
+                    MVN_VERSION=sh(script:'. ${WORKSPACE}/spring-petclinic-vets-service/target/maven-archiver/pom.properties && echo $version', returnStdout:true).trim()
+                    env.IMAGE_TAG_VETS_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:vets-service-v${MVN_VERSION}-b${BUILD_NUMBER}"
+                    MVN_VERSION=sh(script:'. ${WORKSPACE}/spring-petclinic-visits-service/target/maven-archiver/pom.properties && echo $version', returnStdout:true).trim()
+                    env.IMAGE_TAG_VISITS_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:visits-service-v${MVN_VERSION}-b${BUILD_NUMBER}"
+                    env.IMAGE_TAG_GRAFANA_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:grafana-service"
+                    env.IMAGE_TAG_PROMETHEUS_SERVICE="${ECR_REGISTRY}/${APP_REPO_NAME}:prometheus-service"
+                }
+            }
+        }
+        stage('Build App Docker Images') {
+            steps {
+                echo 'Building App Dev Images'
+                sh ". ./jenkins/build-dev-docker-images-for-ecr.sh"
+                sh 'docker image ls'
+            }
+        }
+        stage('Push Images to ECR Repo') {
+            steps {
+                echo "Pushing ${APP_NAME} App Images to ECR Repo"
+                sh ". ./jenkins/push-dev-docker-images-to-ecr.sh"
+            }
+        }
+        stage('Create Key Pair for Ansible') {
+            steps {
+                echo "Creating Key Pair for ${APP_NAME} App"
+                sh "aws ec2 create-key-pair --region ${AWS_REGION} --key-name ${CFN_KEYPAIR} --query KeyMaterial --output text > ${CFN_KEYPAIR}"
+                sh "chmod 400 ${CFN_KEYPAIR}"
+            }
+        }
+        stage('Create QA Automation Infrastructure') {
+            steps {
+                echo 'Creating QA Automation Infrastructure for Dev Environment with Cloudfomation'
+                sh "aws cloudformation create-stack --region ${AWS_REGION} --stack-name ${APP_STACK_NAME} --capabilities CAPABILITY_IAM --template-body file://${CFN_TEMPLATE} --parameters ParameterKey=KeyPairName,ParameterValue=${CFN_KEYPAIR}"
+
+                script {
+                    while(true) {
+                        echo "Docker Grand Master is not UP and running yet. Will try to reach again after 10 seconds..."
+                        sleep(10)
+
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=grand-master Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Docker Grand Master Public Ip Address Found: $ip"
+                            env.GRAND_MASTER_PUBLIC_IP = "$ip"
+                            break
+                        }
+                    }
+                    while(true) {
+                        try{
+                            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${GRAND_MASTER_PUBLIC_IP} hostname"
+                            echo "Docker Grand Master is reachable with SSH."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to Docker Grand Master with SSH, I will try again in 10 seconds"
+                            sleep(10)
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Create Docker Swarm for QA Automation Build') {
+            steps {
+                echo "Setup Docker Swarm for QA Automation Build for ${APP_NAME} App"
+                echo "Update dynamic environment"
+                sh "sed -i 's/APP_STACK_NAME/${APP_STACK_NAME}/' ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml"
+                echo "Swarm Setup for all nodes (instances)"
+                sh "ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b ./ansible/playbooks/pb_setup_for_all_docker_swarm_instances.yaml"
+                echo "Swarm Setup for Grand Master node"
+                sh "ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b ./ansible/playbooks/pb_initialize_docker_swarm.yaml"
+                echo "Swarm Setup for Other Managers nodes"
+                sh "ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b ./ansible/playbooks/pb_join_docker_swarm_managers.yaml"
+                echo "Swarm Setup for Workers nodes"
+                sh "ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b ./ansible/playbooks/pb_join_docker_swarm_workers.yaml"
+            }
+        }
+
+        stage('Deploy App on Docker Swarm'){
+            steps {
+                echo 'Deploying App on Swarm'
+                sh 'envsubst < docker-compose-swarm-dev.yml > docker-compose-swarm-dev-tagged.yml'
+                sh 'ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b --extra-vars "workspace=${WORKSPACE} app_name=${APP_NAME} aws_region=${AWS_REGION} ecr_registry=${ECR_REGISTRY}" ./ansible/playbooks/pb_deploy_app_on_docker_swarm.yaml'
+            }
+        }
+
+        stage('Test the Application Deployment'){
+            steps {
+                echo "Check if the ${APP_NAME} app is ready or not"
+                script {
+
+                    while(true) {
+                        try{
+                            sh "curl -s ${GRAND_MASTER_PUBLIC_IP}:8080"
+                            echo "${APP_NAME} app is successfully deployed."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to ${APP_NAME} app"
+                            sleep(5)
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Run QA Automation Tests'){
+            steps {
+                echo "Run the Selenium Functional Test on QA Environment"
+                sh 'ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip=${GRAND_MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Deleting all local images'
+            sh 'docker image prune -af'
+            echo 'Delete the Image Repository on ECR'
+            sh """
+                aws ecr delete-repository \
+                  --repository-name ${APP_REPO_NAME} \
+                  --region ${AWS_REGION}\
+                  --force
+                """
+            echo 'Tear down the Docker Swarm infrastructure using AWS CLI'
+            sh "aws cloudformation delete-stack --region ${AWS_REGION} --stack-name ${APP_STACK_NAME}"
+            echo "Delete existing key pair using AWS CLI"
+            sh "aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${CFN_KEYPAIR}"
+            sh "rm -rf ${CFN_KEYPAIR}"
+        }
+    }
+}
+```
+
+- Commit the change, then push the script to the remote repo.
+
+```bash
+git add .
+git commit -m 'added qa automation pipeline for dev'
+git push
+git checkout dev
+git merge feature/msp-17
+git push origin dev
+```
+
+## MSP 18 - Create a QA Environment on Docker Swarm with Clouldformation and Ansible
