@@ -1164,8 +1164,8 @@ tekrar configure yapıyoruz script yerine aşağıdaki komutu giriyoruz ip yi de
 - After running the job above, replace the script with the one below in order to test SSH connection with one of the docker instance.
 
 ```bash
-CFN_KEYPAIR="call-ansible-test-dev.key"
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@172.31.91.243 hostname
+CFN_KEYPAIR="memo-ansible-test-dev.key"
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@172.31.74.29 hostname
 ```
 
 
@@ -1174,11 +1174,11 @@ new folder yap ansible-inventory klasör oluştur onun içine hosts.ini şeklind
 - Prepare static inventory file with name of `hosts.ini` for Ansible under `ansible/inventory` folder using Docker machines private IP addresses.
 
 ```ini
-172.31.91.243   ansible_user=ec2-user  
-172.31.87.143   ansible_user=ec2-user
-172.31.90.30    ansible_user=ec2-user
-172.31.92.190   ansible_user=ec2-user
-172.31.88.8     ansible_user=ec2-user
+172.31.76.50   ansible_user=ec2-user  
+172.31.74.29   ansible_user=ec2-user
+172.31.64.30   ansible_user=ec2-user
+172.31.78.153  ansible_user=ec2-user
+172.31.70.127  ansible_user=ec2-user
 ```
 
 - Commit the change, then push the cloudformation template to the remote repo.

@@ -1290,7 +1290,7 @@ CFN_KEYPAIR="memo-ansible-test-dev.key"
 PATH="$PATH:/usr/local/bin"
 export ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/${CFN_KEYPAIR}"
 export ANSIBLE_HOST_KEY_CHECKING=False
-export APP_STACK_NAME="Memo-$APP_NAME-App-${BUILD_NUMBER}"
+export APP_STACK_NAME="Memo-$APP_NAME-App-3"
 sed -i "s/APP_STACK_NAME/$APP_STACK_NAME/" ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml
 ansible -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml all -m ping
 ```
@@ -1451,7 +1451,7 @@ CFN_KEYPAIR="memo-ansible-test-dev.key"
 PATH="$PATH:/usr/local/bin"
 export ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/${CFN_KEYPAIR}"
 export ANSIBLE_HOST_KEY_CHECKING=False
-export APP_STACK_NAME="Memo-$APP_NAME-App-${BUILD_NUMBER}"
+export APP_STACK_NAME="Memo-$APP_NAME-App-3"
 sed -i "s/APP_STACK_NAME/$APP_STACK_NAME/" ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml
 # Swarm Setup for all nodes (instances)
 ansible-playbook -i ./ansible/inventory/dev_stack_dynamic_inventory_aws_ec2.yaml -b ./ansible/playbooks/pb_setup_for_all_docker_swarm_instances.yaml
@@ -1469,7 +1469,7 @@ aşağıdaki komutu giriyoruz. değişiklikleri giriyoruz ve build number u
 ```bash
 PATH="$PATH:/usr/local/bin"
 APP_NAME="Petclinic"
-AWS_STACK_NAME="Memo-$APP_NAME-App-${BUILD_NUMBER}"
+AWS_STACK_NAME="Memo-$APP_NAME-App-3"
 AWS_REGION="us-east-1"
 aws cloudformation delete-stack --region ${AWS_REGION} --stack-name ${AWS_STACK_NAME}
 ```
@@ -1478,7 +1478,7 @@ Burada key file siliyoruz.
 
 ```bash
 PATH="$PATH:/usr/local/bin"
-CFN_KEYPAIR="call-ansible-test-dev.key"
+CFN_KEYPAIR="memo-ansible-test-dev.key"
 AWS_REGION="us-east-1"
 aws ec2 delete-key-pair --region ${AWS_REGION} --key-name ${CFN_KEYPAIR}
 rm -rf ${CFN_KEYPAIR}

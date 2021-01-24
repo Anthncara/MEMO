@@ -1020,6 +1020,7 @@ https://forum.red-gate.com/discussion/84700/jenkins-will-not-build-after-git-mer
 ## MSP 14 - Create Docker Registry for Dev Manually
 
 * Create a Jenkins Job and name it as `create-ecr-docker-registry-for-dev` to create Docker Registry for `dev` on AWS ECR manually.
+freestyle- build environement time stamp-build step execute shell- komutu gir-
 
 ``` bash
 PATH="$PATH:/usr/local/bin"

@@ -193,7 +193,7 @@ $ scp -i <path-to-your-pem-file> -r <path-to-your-home-directory>/.aws ec2-user@
 
 - Check if the the credentials are transferred to EC2 instance.
 
-- Go into your target folder.
+**- Go into your target folder. *****
 
 - Run the command below to start the application. This time we are running the executable jar file with suffix ```jar-with-dependencies```.
 
@@ -250,6 +250,7 @@ $ sudo systemctl enable httpd
 ```
 
 - Run the command below to copy the contents of the site folder under ```/var/www/html``` folder.
+go to site folder
 
 ```bash
 $ sudo cp -a site/. /var/www/html
